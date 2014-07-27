@@ -5,15 +5,18 @@
 module FirstProvider.TP
 
 open ProviderImplementation.ProvidedTypes //provides APIs
-open Microsoft.FSharp.Core.CompilerServices //lookup code quotations
+open Microsoft.FSharp.Core.CompilerServices //for code quotations
 open System.Reflection
 
-[<TypeProvider>]
-type MyTypeProvider () as this =
+[<TypeProvider>]     //could use a TypeProviderConfig here
+type public MyTypeProvider () as this =
     //this is a class that can generate namespaces and put types in it
     inherit TypeProviderForNamespaces ()
 
+    //Using reflection -> get the assembly of the TP
     let asm = Assembly.GetExecutingAssembly()
+
+    //This namespace will have all the types and will be added to the TP
     let ns = "FirstTypeProvider.Something"
 
     let newType =                                  //erases type to obj

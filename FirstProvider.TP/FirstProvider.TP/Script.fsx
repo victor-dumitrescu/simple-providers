@@ -5,6 +5,9 @@
 open FirstTypeProvider
 
 Something.NewType.Hello
+type Conn = Something.NewType
+let thing = new Conn("stuff")
+thing.``Internal State``
 
 let myThing = Something.NewType()
 
