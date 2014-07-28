@@ -252,7 +252,7 @@ let Clone(nsp1:string, nsp2:string, tp: ITypeProvider) =
       
         if ty.IsGenericType then 
             let args = Array.map TxTypeSymbol (ty.GetGenericArguments())
-            ProvidedSymbolType(Generic (ty.GetGenericTypeDefinition()), Array.toList args)  :> Type
+            ProvidedSymbolType(Generic (TxTypeDefinition (ty.GetGenericTypeDefinition())), Array.toList args)  :> Type
         elif ty.HasElementType then 
             let ety = TxTypeSymbol (ty.GetElementType()) 
             if ty.IsArray then 
@@ -262,8 +262,9 @@ let Clone(nsp1:string, nsp2:string, tp: ITypeProvider) =
             elif ty.IsPointer then ProvidedSymbolType(Pointer,[ety]) :> Type
             elif ty.IsByRef then ProvidedSymbolType(ByRef,[ety]) :> Type
             else ty
+        elif ty.IsGenericParameter then ty
         else
-            ty
+            TxTypeDefinition ty
 
     and TxTypeDefinition(inp: Type) =
       if inp = null then null else
@@ -275,76 +276,76 @@ let Clone(nsp1:string, nsp2:string, tp: ITypeProvider) =
             // which F# quotations and the F# compiler are sensitive too such as System.Tuple and System.Int32.
             inp  
         else
-         { new Type() with 
-            override __.Name = inp.Name |> NIX
-            override __.Assembly = inp.Assembly |> TxAssembly isTarget
-            override __.FullName = inp.FullName |> TxFullTypeName isTarget
-            override __.Namespace = inp.Namespace |> TxNamespaceName isTarget
-            override __.DeclaringType = inp.DeclaringType |> TxTypeDefinition
-            override __.MemberType = inp.MemberType |> NIX
+            { new Type() with 
+                override __.Name = inp.Name |> NIX
+                override __.Assembly = inp.Assembly |> TxAssembly isTarget
+                override __.FullName = inp.FullName |> TxFullTypeName isTarget
+                override __.Namespace = inp.Namespace |> TxNamespaceName isTarget
+                override __.DeclaringType = inp.DeclaringType |> TxTypeDefinition
+                override __.MemberType = inp.MemberType |> NIX
 
-            override __.BaseType = inp.BaseType |> TxTypeSymbol
-            override __.GetInterfaces() = inp.GetInterfaces() |> Array.map TxTypeSymbol
+                override __.BaseType = inp.BaseType |> TxTypeSymbol
+                override __.GetInterfaces() = inp.GetInterfaces() |> Array.map TxTypeSymbol
 
-            override __.GetConstructors(bindingAttrUnused) = inp.GetConstructors (bindingAttrUnused) |> Array.map TxConstructorDefinition
-            override __.GetMethods(bindingAttrUnused) = inp.GetMethods(bindingAttrUnused) |> Array.map TxMethodDefinition
-            override __.GetField(name, bindingAttrUnused) = inp.GetField(name, bindingAttrUnused) |> TxFieldDefinition
-            override __.GetFields(bindingAttrUnused) = inp.GetFields(bindingAttrUnused) |> Array.map TxFieldDefinition
-            override __.GetEvent(name, bindingAttrUnused) = inp.GetEvent(name, bindingAttrUnused) |> TxEventDefinition
-            override __.GetEvents(bindingAttrUnused) = inp.GetEvents(bindingAttrUnused) |> Array.map TxEventDefinition
-            override __.GetProperties(bindingAttrUnused) = inp.GetProperties(bindingAttrUnused) |> Array.map TxPropertyDefinition
-            override __.GetMembers(bindingAttrUnused) = inp.GetMembers(bindingAttrUnused) |> Array.map TxMemberDefinition
-            override __.GetNestedTypes(bindingAttrUnused) = inp.GetNestedTypes(bindingAttrUnused) |> Array.map TxTypeSymbol
-            override __.GetNestedType(name, bindingAttrUnused) = inp.GetNestedType(name, bindingAttrUnused) |> TxTypeSymbol
+                override __.GetConstructors(bindingAttrUnused) = inp.GetConstructors (bindingAttrUnused) |> Array.map TxConstructorDefinition
+                override __.GetMethods(bindingAttrUnused) = inp.GetMethods(bindingAttrUnused) |> Array.map TxMethodDefinition
+                override __.GetField(name, bindingAttrUnused) = inp.GetField(name, bindingAttrUnused) |> TxFieldDefinition
+                override __.GetFields(bindingAttrUnused) = inp.GetFields(bindingAttrUnused) |> Array.map TxFieldDefinition
+                override __.GetEvent(name, bindingAttrUnused) = inp.GetEvent(name, bindingAttrUnused) |> TxEventDefinition
+                override __.GetEvents(bindingAttrUnused) = inp.GetEvents(bindingAttrUnused) |> Array.map TxEventDefinition
+                override __.GetProperties(bindingAttrUnused) = inp.GetProperties(bindingAttrUnused) |> Array.map TxPropertyDefinition
+                override __.GetMembers(bindingAttrUnused) = inp.GetMembers(bindingAttrUnused) |> Array.map TxMemberDefinition
+                override __.GetNestedTypes(bindingAttrUnused) = inp.GetNestedTypes(bindingAttrUnused) |> Array.map TxTypeSymbol
+                override __.GetNestedType(name, bindingAttrUnused) = inp.GetNestedType(name, bindingAttrUnused) |> TxTypeSymbol
 
-            override __.GetPropertyImpl(name, bindingAttrUnused, binderUnused, returnTypeUnused, typesUnused, modifiersUnused) = 
-                inp.GetProperty(name, bindingAttrUnused) |> TxPropertyDefinition
-                // inp.GetPropertyImpl(name, bindingAttrUnused, binderUnused, returnTypeUnused, typesUnused, modifiersUnused) |> TxPropertyDefinition
+                override __.GetPropertyImpl(name, bindingAttrUnused, binderUnused, returnTypeUnused, typesUnused, modifiersUnused) = 
+                    inp.GetProperty(name, bindingAttrUnused) |> TxPropertyDefinition
+                    // inp.GetPropertyImpl(name, bindingAttrUnused, binderUnused, returnTypeUnused, typesUnused, modifiersUnused) |> TxPropertyDefinition
         
-            // Every implementation of System.Type must meaningfully implement these
-            override this.MakeGenericType(args) = ProvidedSymbolType(SymbolKind.Generic this, Array.toList args) :> Type
-            override this.MakeArrayType() = ProvidedSymbolType(SymbolKind.SDArray, [this]) :> Type
-            override this.MakeArrayType arg = ProvidedSymbolType(SymbolKind.Array arg, [this]) :> Type
-            override this.MakePointerType() = ProvidedSymbolType(SymbolKind.Pointer, [this]) :> Type
-            override this.MakeByRefType() = ProvidedSymbolType(SymbolKind.ByRef, [this]) :> Type
+                // Every implementation of System.Type must meaningfully implement these
+                override this.MakeGenericType(args) = ProvidedSymbolType(SymbolKind.Generic this, Array.toList args) :> Type
+                override this.MakeArrayType() = ProvidedSymbolType(SymbolKind.SDArray, [this]) :> Type
+                override this.MakeArrayType arg = ProvidedSymbolType(SymbolKind.Array arg, [this]) :> Type
+                override this.MakePointerType() = ProvidedSymbolType(SymbolKind.Pointer, [this]) :> Type
+                override this.MakeByRefType() = ProvidedSymbolType(SymbolKind.ByRef, [this]) :> Type
 
-            override __.GetAttributeFlagsImpl() = inp.Attributes |> NIX
+                override __.GetAttributeFlagsImpl() = inp.Attributes |> NIX
 
-            override __.IsArrayImpl() = inp.IsArray |> NIX
-            override __.IsByRefImpl() = inp.IsByRef |> NIX
-            override __.IsPointerImpl() = inp.IsPointer |> NIX
-            override __.IsPrimitiveImpl() = inp.IsPrimitive |> NIX
-            override __.IsCOMObjectImpl() = inp.IsCOMObject |> NIX
-            override __.IsGenericType = inp.IsGenericType |> NIX
-            override __.IsGenericTypeDefinition = inp.IsGenericTypeDefinition |> NIX
+                override __.IsArrayImpl() = inp.IsArray |> NIX
+                override __.IsByRefImpl() = inp.IsByRef |> NIX
+                override __.IsPointerImpl() = inp.IsPointer |> NIX
+                override __.IsPrimitiveImpl() = inp.IsPrimitive |> NIX
+                override __.IsCOMObjectImpl() = inp.IsCOMObject |> NIX
+                override __.IsGenericType = inp.IsGenericType |> NIX
+                override __.IsGenericTypeDefinition = inp.IsGenericTypeDefinition |> NIX
 
-            override __.HasElementTypeImpl() = inp.HasElementType |> NIX
+                override __.HasElementTypeImpl() = inp.HasElementType |> NIX
 
-            override __.UnderlyingSystemType = inp.UnderlyingSystemType |> TxTypeSymbol
-            override __.GetGenericArguments() = inp.GetGenericArguments() |> Array.map TxTypeSymbol
-            override __.GetGenericTypeDefinition() = inp.GetGenericTypeDefinition() |> TxTypeDefinition
-            override __.GetCustomAttributesData() = inp.GetCustomAttributesData() |> TxCustomAttributesData
+                override __.UnderlyingSystemType = inp.UnderlyingSystemType |> TxTypeSymbol
+                override __.GetGenericArguments() = inp.GetGenericArguments() |> Array.map TxTypeSymbol
+                override __.GetGenericTypeDefinition() = inp.GetGenericTypeDefinition() |> TxTypeDefinition
+                override __.GetCustomAttributesData() = inp.GetCustomAttributesData() |> TxCustomAttributesData
 
-            override __.GetHashCode() = inp.GetHashCode()  |> NIX
-            override __.Equals(that:obj) = inp.Equals(unwrapObj<Type> that) 
-            override __.ToString() = inp.ToString() |> NIX
+                override __.GetHashCode() = inp.GetHashCode()  |> NIX
+                override __.Equals(that:obj) = inp.Equals(unwrapObj<Type> that) 
+                override __.ToString() = inp.ToString() |> NIX
 
-            override __.GetMember(name,mt,bindingAttrUnused)                                                      = notRequired "GUID"
-            override __.GUID                                                                                      = notRequired "GUID"
-            override __.GetMethodImpl(name, bindingAttrUnused, binder, callConvention, types, modifiers)          = notRequired "GetMethodImpl"
-            override __.GetConstructorImpl(bindingAttrUnused, binder, callConvention, types, modifiers)           = notRequired "GetConstructorImpl"
-            override __.GetCustomAttributes(inherited)                                                            = notRequired "GetCustomAttributes"
-            override __.GetCustomAttributes(attributeType, inherited)                                             = notRequired "GetCustomAttributes"
-            override __.IsDefined(attributeType, inherited)                                                       = notRequired "IsDefined"
-            override __.GetInterface(name, ignoreCase)                                                            = notRequired "GetInterface"
-            override __.Module                                                                                    = notRequired "Module" : Module 
-            override __.GetElementType()                                                                          = notRequired "GetElementType"
-            override __.InvokeMember(name, invokeAttr, binder, target, args, modifiers, culture, namedParameters) = notRequired "InvokeMember"
-            override __.AssemblyQualifiedName                                                                     = notRequired "AssemblyQualifiedName"
+                override __.GetMember(name,mt,bindingAttrUnused)                                                      = notRequired "GUID"
+                override __.GUID                                                                                      = notRequired "GUID"
+                override __.GetMethodImpl(name, bindingAttrUnused, binder, callConvention, types, modifiers)          = notRequired "GetMethodImpl"
+                override __.GetConstructorImpl(bindingAttrUnused, binder, callConvention, types, modifiers)           = notRequired "GetConstructorImpl"
+                override __.GetCustomAttributes(inherited)                                                            = notRequired "GetCustomAttributes"
+                override __.GetCustomAttributes(attributeType, inherited)                                             = notRequired "GetCustomAttributes"
+                override __.IsDefined(attributeType, inherited)                                                       = notRequired "IsDefined"
+                override __.GetInterface(name, ignoreCase)                                                            = notRequired "GetInterface"
+                override __.Module                                                                                    = notRequired "Module" : Module 
+                override __.GetElementType()                                                                          = notRequired "GetElementType"
+                override __.InvokeMember(name, invokeAttr, binder, target, args, modifiers, culture, namedParameters) = notRequired "InvokeMember"
+                override __.AssemblyQualifiedName                                                                     = notRequired "AssemblyQualifiedName"
 
-          interface IWraps<Type> with 
-              member x.Value = inp
-        }
+              interface IWraps<Type> with 
+                  member x.Value = inp
+            }
 
     /// Transform a provided member definition
     and TxMemberDefinition(inp: MemberInfo) =
