@@ -36,9 +36,6 @@
     <DocumentationFile>bin\Release\FirstProvider.TP.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FirstProvider.TP">
-      <HintPath>bin\Debug\FirstProvider.TP.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -52,8 +49,8 @@
     <Compile Include="ProvidedTypes.fs" />
     <Compile Include="GeneralCombinators.fs" />
     <Compile Include="CloneCombinator.fs" />
-    <Compile Include="Example.fs" />
     <Compile Include="TypeProvider.fs" />
+    <Compile Include="Example.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
