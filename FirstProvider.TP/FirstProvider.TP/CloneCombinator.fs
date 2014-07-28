@@ -270,10 +270,12 @@ let Clone(nsp1:string, nsp2:string, tp: ITypeProvider) =
       txTableUniq inp <| fun () ->
         let isTarget =  (inp.Attributes &&& enum (int32 TypeProviderTypeAttributes.IsErased) <> enum 0)
 
-        //if not isTarget then 
-        //     inp  // don't wrap types that aren't being translated
-        //else
-        { new Type() with 
+        if not isTarget then 
+            // Don't wrap types that aren't being translated. This applies particularly to types
+            // which F# quotations and the F# compiler are sensitive too such as System.Tuple and System.Int32.
+            inp  
+        else
+         { new Type() with 
             override __.Name = inp.Name |> NIX
             override __.Assembly = inp.Assembly |> TxAssembly isTarget
             override __.FullName = inp.FullName |> TxFullTypeName isTarget
