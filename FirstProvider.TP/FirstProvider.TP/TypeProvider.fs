@@ -22,52 +22,59 @@ type public MyTypeProvider () as this =
     let newType =                                  //erases type to obj
         ProvidedTypeDefinition(asm, ns, "NewType", Some typeof<obj>)
 
-    let helloWorld =
-        ProvidedProperty(
-            "Hello",
-            typeof<string>,
-            IsStatic = true,
-            GetterCode =
-                (fun _ -> <@ "hello world" @>.Raw )
-            )
-
-    let cons =
-        ProvidedConstructor(
-            [],
-            InvokeCode = fun _ -> <@ "My internal state" :> obj @>.Raw
-            )
-
-    let paramCons =
-        ProvidedConstructor(
-            [ProvidedParameter("Internal state", typeof<string>)],
-            InvokeCode = fun args -> <@ (%%(args.[0]) : string) :> obj @>.Raw
-            )
-
-    let internalState =
-        ProvidedProperty(
-            "Internal State",
-            typeof<string>,
-            IsStatic = false,
-            GetterCode = (fun args -> <@ (%%args.[0] :> obj) :?> string @>.Raw)
-            )
-
-    let prefixState =
-        ProvidedMethod(
-            "PrefixState",
-            [ProvidedParameter("Prefix", typeof<string>)],
-            typeof<string>,
-            IsStaticMethod = false,
-            InvokeCode = 
-                fun [self; prefix] ->
-                    <@ (%%prefix : string) + (%%self :> obj :?> string) @>.Raw
-        )
-
     do 
-        newType.AddMember helloWorld
-        newType.AddMember cons //Note: you can also add subtypes with AddMember
-        newType.AddMember paramCons
-        newType.AddMember internalState
-        newType.AddMember prefixState
+        newType.DefineStaticParameters([ProvidedStaticParameter("Sample", typeof<string>, parameterDefaultValue = "def")], 
+                                        (fun tName args -> 
+                                            let newType =
+                                                ProvidedTypeDefinition(asm, ns, tName, Some typeof<obj>)
+
+                                            let helloWorld =
+                                                ProvidedProperty(
+                                                    "Hello",
+                                                    typeof<string>,
+                                                    IsStatic = true,
+                                                    GetterCode =
+                                                        (fun _ -> <@ "hello world" @>.Raw )
+                                                    )
+
+                                            let cons =
+                                                ProvidedConstructor(
+                                                    [],
+                                                    InvokeCode = fun _ -> <@ "My internal state" :> obj @>.Raw
+                                                    )
+
+                                            let paramCons =
+                                                ProvidedConstructor(
+                                                    [ProvidedParameter("Internal state", typeof<int>)],
+                                                    InvokeCode = fun argsx -> <@ (%%(argsx.[0]) : int) :> obj @>.Raw
+                                                    )
+
+                                            let internalState =
+                                                ProvidedProperty(
+                                                    "Internal State",
+                                                    typeof<int>,
+                                                    IsStatic = false,
+                                                    GetterCode = (fun argsy -> <@ (%%argsy.[0] :> obj) :?> int @>.Raw)
+                                                    )
+
+                                            let prefixState =
+                                                ProvidedMethod(
+                                                    "PrefixState",
+                                                    [ProvidedParameter("Prefix", typeof<string>)],
+                                                    typeof<string>,
+                                                    IsStaticMethod = false,
+                                                    InvokeCode = 
+                                                        fun [self; prefix] ->
+                                                            <@ (%%prefix : string) + (%%self :> obj :?> string) @>.Raw
+                                            )
+                                            do 
+                                                newType.AddMember helloWorld
+                                                newType.AddMember cons //Note: you can also add subtypes with AddMember
+                                                newType.AddMember paramCons
+                                                newType.AddMember internalState
+                                                newType.AddMember prefixState
+                                                                                                                                
+                                            newType ))
 
     do
         this.AddNamespace(ns, [newType])
