@@ -40,7 +40,7 @@ type public MyTypeProvider () as this =
                                             let cons =
                                                 ProvidedConstructor(
                                                     [],
-                                                    InvokeCode = fun _ -> <@ "My internal state" :> obj @>.Raw
+                                                    InvokeCode = fun _ -> <@ 3 :> obj @>.Raw
                                                     )
 
                                             let paramCons =

@@ -1,6 +1,6 @@
 ﻿module Example
 
-open FSharp.ProvidedTypes.Combinators
+open FSharp.ProvidedTypes.GeneralCombinators
 open FSharp.ProvidedTypes.CloneCombinator
 open Microsoft.FSharp.Core.CompilerServices
 

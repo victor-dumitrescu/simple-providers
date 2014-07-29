@@ -1,5 +1,6 @@
 ﻿module TPCombinators.Tests
 
+// #r @"C:\GitHub\victor-dumitrescu\simple-providers\FirstProvider.TP\FirstProvider.TP\bin\Debug\FirstProvider.TP.dll"
 type Mine = MySpace.NewType<"stuff">
 
 printfn "%A" Mine.Hello
