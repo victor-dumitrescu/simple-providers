@@ -49,6 +49,8 @@
     <Compile Include="ProvidedTypes.fs" />
     <Compile Include="GeneralCombinators.fs" />
     <Compile Include="CloneCombinator.fs" />
+    <Compile Include="ChainCombinator.fs" />
+    <Compile Include="AddStaticCombinator.fs" />
     <Compile Include="TypeProvider.fs" />
     <Compile Include="Example.fs" />
     <None Include="Script.fsx" />
