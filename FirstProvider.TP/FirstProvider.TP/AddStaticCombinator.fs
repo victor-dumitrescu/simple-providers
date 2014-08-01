@@ -399,7 +399,7 @@ let AddStaticParameter(name: string, ty: Type, defaultValue, tp: ITypeProvider) 
 //                inp.GetStaticParameters(unwrap typeWithoutArguments) |> Array.map TxStaticParameter
 
             override __.ApplyStaticArguments(typeWithoutArguments, typePathWithArguments, objs) = 
-                let inpApplied = inp.ApplyStaticArguments(unwrap typeWithoutArguments, XIN typePathWithArguments, objs) 
+                let inpApplied = inp.ApplyStaticArguments(unwrap typeWithoutArguments, XIN typePathWithArguments, objs.[0..objs.Length-2]) 
                 let inpWrapped = inpApplied |> TxTypeDefinition
                 inpWrapped
 
