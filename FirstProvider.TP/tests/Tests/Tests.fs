@@ -1,17 +1,24 @@
 ﻿module TPCombinators.Tests
 
 // #r @"C:\GitHub\victor-dumitrescu\simple-providers\FirstProvider.TP\FirstProvider.TP\bin\Debug\FirstProvider.TP.dll"
-type Mine = MySpace.NewType<AnotherOne="abc">
-type Mine2 = MySpace.NewType<Sample="abc">
-type Mine3 = MySpace.NewType<AnotherOne="def",Sample="abc">
+
+type Mine = MySpace.NewType<"abc">
+type Mine2 = MySpace.NewType<Sample="abc", AnotherOne = "aa">
+type Original = FirstTypeProvider.Something.NewType<Sample="aaa">
+//type Mine3 = MySpace.NewType<AnotherOne="def",Sample="abc">
+
+//Ideally
 //type Mine4 = MySpace.NewType< >
 
 
-printfn "%A" Mine.Hello
+printfn "%A" Mine2.Hello
+printfn "%A" Original.Hello
 
-let thing = new Mine(42)
+let thing = new Mine2(42)
+let thing' = new Original(32)
 
-let thing2 = new Mine()
-printfn "%A" thing2.``Internal State``
+let thing2 = new Mine2()
+let thing2' = new Original()
 
+printfn "%A" thing.``Internal State``
 
